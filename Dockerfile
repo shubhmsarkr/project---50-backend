@@ -1,10 +1,11 @@
-FROM maven:3.8.5-openjdk-17 AS build
+FROM eclipse-temurin:17-jdk-alpine AS build
 WORKDIR /app
 COPY . .
+RUN chmod +x mvnw
 ENV MAVEN_OPTS="-Xmx256m"
-RUN mvn clean package -DskipTests
+RUN ./mvnw clean package -DskipTests
 
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/target/demo-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 5000
