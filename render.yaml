@@ -1,0 +1,36 @@
+services:
+  - type: pserv
+    name: eco-mysql-db
+    env: docker
+    rootDir: mysql
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: projectdb
+      - key: MYSQL_USER
+        value: eco_admin
+      - key: MYSQL_PASSWORD
+        generateValue: true
+
+  - type: web
+    name: eco-learning-backend
+    env: java
+    buildCommand: "./mvnw clean package -DskipTests"
+    startCommand: "java -jar target/*.jar"
+    envVars:
+      - key: PORT
+        value: "5000"
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://eco-mysql-db:3306/projectdb
+      - key: SPRING_DATASOURCE_USERNAME
+        value: eco_admin
+      - key: SPRING_DATASOURCE_PASSWORD
+        fromService:
+          type: pserv
+          name: eco-mysql-db
+          envVarKey: MYSQL_PASSWORD
